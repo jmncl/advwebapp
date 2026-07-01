@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Jordan Brand Store</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">JORDAN <span>BRAND</span></a>
+  </nav>
+
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-md-7">
+        <div class="form-wrap" style="max-width:100%;">
+          <h3 class="form-title">Checkout</h3>
+          <form id="checkout-form">
+            <div class="form-group">
+              <label>Shipping Address</label>
+              <textarea id="shipping-address" class="form-control" rows="3"></textarea>
+              <span id="address-error" class="error-msg">Shipping address is required.</span>
+            </div>
+            <div class="form-group">
+              <label>Payment Method</label>
+              <select id="payment-method" class="form-control">
+                <option value="Cash on Delivery">Cash on Delivery</option>
+                <option value="GCash">GCash</option>
+                <option value="Credit Card">Credit Card</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Place Order</button>
+          </form>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="card">
+          <div class="card-body">
+            <h5>Order Summary</h5>
+            <ul id="summary-list"></ul>
+            <hr>
+            <strong>Total: <span id="summary-total">₱0.00</span></strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Products - Jordan Brand Store</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap4.min.css">
+  <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">JORDAN ADMIN</div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="products.html" class="active"><i class="fas fa-box"></i> Products</a>
+        <a href="users.html"><i class="fas fa-users"></i> Users</a>
+        <a href="orders.html"><i class="fas fa-shopping-bag"></i> Orders</a>
+        <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+        <a href="../index.html"><i class="fas fa-store"></i> Back to Shop</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 id="page-title">Product Management</h2>
+        <div>
+          <button id="toggle-trash-btn" class="btn btn-secondary mr-2"><i class="fas fa-trash"></i> View Trash</button>
+          <button id="add-product-btn" class="btn btn-primary" data-toggle="modal" data-target="#productModal"><i class="fas fa-plus"></i> Add Product</button>
+        </div>
+      </div>
+      <table id="products-table" class="table table-striped">
+        <thead>
+          <tr><th>ID</th><th>Image</th><th>Item Code</th><th>Name</th><th>Category</th><th>Size</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+      </table>
+    </main>
+  </div>
+
+  <div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title" id="modal-title">Add Product</h5><button type="button" class="close" data-dismiss="modal">&times;</button></div>
+        <div class="modal-body">
+          <form id="product-form">
+            <input type="hidden" id="product-id">
+            <div class="row">
+              <div class="col-md-6 form-group"><label>Item Code *</label><input id="item_code" class="form-control"></div>
+              <div class="col-md-6 form-group"><label>Name *</label><input id="name" class="form-control"></div>
+              <div class="col-md-6 form-group"><label>Category *</label><select id="category" class="form-control"><option value="Footwear">Footwear</option><option value="Clothing">Clothing</option></select></div>
+              <div class="col-md-6 form-group"><label>Size</label><input id="size" class="form-control"></div>
+              <div class="col-md-6 form-group"><label>Unit Price *</label><input id="unit_price" type="number" step="0.01" class="form-control"></div>
+              <div class="col-md-6 form-group"><label>Stock Quantity</label><input id="stock_quantity" type="number" class="form-control" value="0"></div>
+              <div class="col-md-6 form-group"><label>Active</label><select id="is_active" class="form-control"><option value="1">Active</option><option value="0">Inactive</option></select></div>
+              <div class="col-md-6 form-group"><label>Cover Photo</label><input id="image" type="file" class="form-control"></div>
+              <div class="col-12 form-group"><label>Description</label><textarea id="description" class="form-control" rows="3"></textarea></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button id="save-product-btn" class="btn btn-primary">Save Product</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/item.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jordan Brand Store</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.css">
+  <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">JORDAN <span>BRAND</span></a>
+    <div class="nav-links">
+      <a href="index.html"><i class="fas fa-store"></i> Shop</a>
+      <a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart <span id="cart-count" class="cart-badge" style="display:none;">0</span></a>
+      <span id="nav-auth"></span>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Air <span>Jordan</span> Collection</h1>
+    <p>Premium apparel and footwear. Shop authentic Jordan Brand products.</p>
+    <div class="search-wrap">
+      <input type="text" id="search-input" class="search-input" placeholder="Search products...">
+      <button id="search-btn" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+    </div>
+  </section>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-category="">All</button>
+    <button class="filter-btn" data-category="Footwear">Footwear</button>
+    <button class="filter-btn" data-category="Clothing">Clothing</button>
+    <select id="sort-select" class="filter-select">
+      <option value="">Sort By</option>
+      <option value="price_asc">Price: Low to High</option>
+      <option value="price_desc">Price: High to Low</option>
+    </select>
+    <input type="number" id="min-price" class="filter-select" placeholder="Min Price" style="width:120px;">
+    <input type="number" id="max-price" class="filter-select" placeholder="Max Price" style="width:120px;">
+  </div>
+
+  <div id="product-grid" class="product-grid"></div>
+  <div id="pagination" class="pagination-wrap"></div>
+
+  <footer>Jordan Brand Store &mdash; Tim Quirsten Tan &amp; John Manuel Tianzon &mdash; BSIT-S-2A</footer>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>
