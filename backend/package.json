@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "db:reset": "node ../database/seed.js --reset",
+    "db:seed": "node ../database/seed.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

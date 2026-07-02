@@ -402,3 +402,17 @@ footer {
 }
 
 footer span { color: var(--jordan-red); }
+
+.photo-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.photo-thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--jordan-border);
+}

@@ -34,12 +34,22 @@ Edit `backend/.env` — set your MySQL password if needed:
 DB_PASSWORD=your_mysql_password
 ```
 
-### 4. Seed database (creates tables + sample data)
+### 4. Reset and seed database
+
+Drop the database, recreate it, and load sample data:
 
 ```bash
-cd jordan-brand-store/database
-node seed.js
+cd backend
+npm run db:reset
 ```
+
+To reseed without dropping the database (recreates tables):
+
+```bash
+npm run db:seed
+```
+
+All seed data lives in `database/seed.js`.
 
 ### 5. Start backend API
 

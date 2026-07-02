@@ -1,10 +1,65 @@
 let ordersTable;
 let viewingTrash = false;
 
+const resetOrderForm = () => {
+  const validator = $('#order-form').data('validator');
+  if (validator) validator.resetForm();
+  $('#order-form')[0].reset();
+};
+
+const initOrderValidation = () => {
+  $('#order-form').validate({
+    rules: {
+      status: { required: true },
+      admin_note: { required: true, minlength: 5, maxlength: 300 }
+    },
+    messages: {
+      status: { required: 'Please select an order status' },
+      admin_note: {
+        required: 'Admin note is required',
+        minlength: 'Admin note must be at least 5 characters'
+      }
+    },
+    errorElement: 'div',
+    errorClass: 'text-danger small mt-1',
+    submitHandler: () => updateOrderStatus()
+  });
+};
+
+const openOrderModal = (order) => {
+  resetOrderForm();
+  $('#order-id').val(order.id);
+  $('#order-display-id').val(`#${order.id}`);
+  $('#order-status').val(order.status);
+  $('#order-note').val('');
+  $('#orderModal').modal('show');
+};
+
+const updateOrderStatus = () => {
+  const id = $('#order-id').val();
+  const status = $('#order-status').val();
+
+  $.ajax({
+    url: `${API_URL}/api/v1/orders/${id}/status`,
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${getToken()}` },
+    contentType: 'application/json',
+    data: JSON.stringify({ status }),
+    success: () => {
+      $('#orderModal').modal('hide');
+      ordersTable.ajax.reload();
+      Swal.fire({ icon: 'success', title: 'Status updated & email sent', timer: 1500, showConfirmButton: false });
+    },
+    error: (xhr) => Swal.fire({ icon: 'error', text: xhr.responseJSON?.error || 'Update failed' })
+  });
+};
+
 $(document).ready(() => {
   if (!requireAdmin()) return;
 
+  initOrderValidation();
   $('#toggle-trash-btn').on('click', toggleTrashView);
+  $('#orderModal').on('hidden.bs.modal', resetOrderForm);
   initOrdersTable();
 });
 
@@ -36,11 +91,8 @@ const initOrdersTable = () => {
         data: 'status',
         render: (d, t, row) => viewingTrash
           ? `<span class="badge badge-warning">${d}</span>`
-          : `<select class="form-control form-control-sm status-select" data-id="${row.id}">
-              ${['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map((s) =>
-                `<option value="${s}" ${s === d ? 'selected' : ''}>${s}</option>`
-              ).join('')}
-            </select>`
+          : `<span class="badge badge-warning mr-2">${d}</span>
+             <button class="btn btn-secondary btn-sm edit-status-btn" data-id="${row.id}"><i class="fas fa-edit"></i> Update</button>`
       },
       {
         data: 'createdAt',
@@ -56,18 +108,10 @@ const initOrdersTable = () => {
     order: [[0, 'desc']]
   });
 
-  $('#orders-table').on('change', '.status-select', function () {
+  $('#orders-table').on('click', '.edit-status-btn', function () {
     const id = $(this).data('id');
-    const status = $(this).val();
-    $.ajax({
-      url: `${API_URL}/api/v1/orders/${id}/status`,
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${getToken()}` },
-      contentType: 'application/json',
-      data: JSON.stringify({ status }),
-      success: () => Swal.fire({ icon: 'success', title: 'Status updated & email sent', timer: 1500, showConfirmButton: false }),
-      error: (xhr) => Swal.fire({ icon: 'error', text: xhr.responseJSON?.error || 'Update failed' })
-    });
+    const row = ordersTable.rows().data().toArray().find((o) => String(o.id) === String(id));
+    if (row) openOrderModal(row);
   });
 
   $('#orders-table').on('click', '.delete-btn', function () {
