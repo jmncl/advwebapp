@@ -6,7 +6,103 @@ $(document).ready(() => {
     return;
   }
   loadProduct(id);
+
+  $('#gallery-prev').on('click', () => scrollThumbs(-1));
+  $('#gallery-next').on('click', () => scrollThumbs(1));
+  $('#photo-gallery').on('scroll', updateGalleryNav);
 });
+
+const setMainImage = (src, alt) => {
+  if (src) {
+    $('#main-image').html(`<img src="${src}" alt="${alt || 'Product image'}">`);
+  } else {
+    $('#main-image').html('<div class="placeholder-img gallery-placeholder"><i class="fas fa-shoe-prints"></i></div>');
+  }
+};
+
+const setActiveThumb = (index) => {
+  $('#photo-gallery .gallery-thumb').removeClass('active');
+  $(`#photo-gallery .gallery-thumb[data-index="${index}"]`).addClass('active');
+};
+
+const selectGalleryImage = (index) => {
+  const $thumb = $(`#photo-gallery .gallery-thumb[data-index="${index}"]`);
+  if (!$thumb.length) return;
+
+  const src = $thumb.data('src');
+  const alt = $thumb.data('alt');
+  setMainImage(src, alt);
+  setActiveThumb(index);
+  $thumb[0].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+};
+
+const buildGalleryImages = (product) => {
+  const images = [];
+  const seen = new Set();
+
+  const cover = productImage(product);
+  if (cover) {
+    images.push({ src: cover, alt: product.name });
+    seen.add(cover);
+  }
+
+  (product.ProductPhotos || []).forEach((photo) => {
+    const src = `${API_URL}/${photo.photo_path}`;
+    if (!seen.has(src)) {
+      images.push({ src, alt: product.name });
+      seen.add(src);
+    }
+  });
+
+  return images;
+};
+
+const renderGallery = (product) => {
+  const images = buildGalleryImages(product);
+  const $gallery = $('#photo-gallery').empty();
+
+  if (!images.length) {
+    setMainImage(null);
+    $('.gallery-thumbs-wrap').hide();
+    return;
+  }
+
+  $('.gallery-thumbs-wrap').show();
+  setMainImage(images[0].src, images[0].alt);
+
+  images.forEach((image, index) => {
+    const $thumb = $(`
+      <button type="button" class="gallery-thumb${index === 0 ? ' active' : ''}"
+              data-index="${index}" data-src="${image.src}" data-alt="${image.alt}"
+              aria-label="View image ${index + 1}">
+        <img src="${image.src}" alt="${image.alt}">
+      </button>
+    `);
+
+    $thumb.on('mouseenter click', (e) => {
+      e.preventDefault();
+      selectGalleryImage(index);
+    });
+
+    $gallery.append($thumb);
+  });
+
+  updateGalleryNav();
+};
+
+const scrollThumbs = (direction) => {
+  const $track = $('#photo-gallery');
+  $track[0].scrollBy({ left: direction * 220, behavior: 'smooth' });
+};
+
+const updateGalleryNav = () => {
+  const $track = $('#photo-gallery')[0];
+  if (!$track) return;
+
+  const maxScroll = $track.scrollWidth - $track.clientWidth;
+  $('#gallery-prev').prop('disabled', $track.scrollLeft <= 0);
+  $('#gallery-next').prop('disabled', $track.scrollLeft >= maxScroll - 1);
+};
 
 const loadProduct = (id) => {
   $('#product-loading').text('Loading product...');
@@ -25,18 +121,7 @@ const loadProduct = (id) => {
     $('#product-desc').text(p.description || 'No description available.');
     $('#product-stock').text(p.stock_quantity > 0 ? `${p.stock_quantity} available` : 'Out of stock');
 
-    if (productImage(p)) {
-      $('#main-image').html(`<img src="${productImage(p)}" alt="${p.name}" style="width:100%;max-height:400px;object-fit:cover;border-radius:8px;">`);
-    } else {
-      $('#main-image').html(`<div class="placeholder-img" style="height:400px;border-radius:8px;"><i class="fas fa-shoe-prints"></i></div>`);
-    }
-
-    $('#photo-gallery').empty();
-    if (p.ProductPhotos && p.ProductPhotos.length) {
-      p.ProductPhotos.forEach((photo) => {
-        $('#photo-gallery').append(`<img src="${API_URL}/${photo.photo_path}" alt="${p.name}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;cursor:pointer;margin:4px;">`);
-      });
-    }
+    renderGallery(p);
 
     if (p.stock_quantity <= 0) {
       $('#add-cart-form').hide();

@@ -31,20 +31,50 @@ const openOrderModal = (order) => {
   $('#order-id').val(order.id);
   $('#order-display-id').val(`#${order.id}`);
   $('#order-status').val(order.status);
-  $('#order-note').val('');
+  $('#order-note').val(order.admin_note || '');
   $('#orderModal').modal('show');
+};
+
+const viewOrder = (id) => {
+  $.ajax({
+    url: `${API_URL}/api/v1/orders/${id}`,
+    headers: { Authorization: `Bearer ${getToken()}` },
+    success: (data) => {
+      const order = data.order;
+      let itemsHtml = '';
+      (order.OrderItems || []).forEach((item) => {
+        itemsHtml += `<li>${item.Product?.name || 'Product'} x${item.quantity} - ${formatPrice(item.computed_subtotal)}</li>`;
+      });
+
+      Swal.fire({
+        title: `Order #${order.id}`,
+        html: `
+          <p><strong>Customer:</strong> ${order.User?.name || '-'} (${order.User?.email || '-'})</p>
+          <p><strong>Status:</strong> ${order.status}</p>
+          <p><strong>Shipping:</strong> ${order.shipping_address || '-'}</p>
+          <p><strong>Payment:</strong> ${order.payment_method || '-'}</p>
+          ${order.admin_note ? `<p><strong>Admin note:</strong> ${order.admin_note}</p>` : ''}
+          <ul style="text-align:left;">${itemsHtml}</ul>
+          <p><strong>Total:</strong> ${formatPrice(order.computed_total)}</p>
+        `,
+        width: 600
+      });
+    },
+    error: (xhr) => Swal.fire({ icon: 'error', text: xhr.responseJSON?.error || 'Could not load order' })
+  });
 };
 
 const updateOrderStatus = () => {
   const id = $('#order-id').val();
   const status = $('#order-status').val();
+  const admin_note = $('#order-note').val().trim();
 
   $.ajax({
-    url: `${API_URL}/api/v1/orders/${id}/status`,
+    url: `${API_URL}/api/v1/orders/${id}`,
     method: 'PUT',
     headers: { Authorization: `Bearer ${getToken()}` },
     contentType: 'application/json',
-    data: JSON.stringify({ status }),
+    data: JSON.stringify({ status, admin_note }),
     success: () => {
       $('#orderModal').modal('hide');
       ordersTable.ajax.reload();
@@ -102,10 +132,15 @@ const initOrdersTable = () => {
         data: null,
         render: (d) => viewingTrash
           ? `<button class="btn btn-primary btn-sm restore-btn" data-id="${d.id}"><i class="fas fa-undo"></i> Restore</button>`
-          : `<button class="btn btn-danger btn-sm delete-btn" data-id="${d.id}"><i class="fas fa-trash"></i></button>`
+          : `<button class="btn btn-info btn-sm view-btn" data-id="${d.id}"><i class="fas fa-eye"></i></button>
+             <button class="btn btn-danger btn-sm delete-btn" data-id="${d.id}"><i class="fas fa-trash"></i></button>`
       }
     ],
     order: [[0, 'desc']]
+  });
+
+  $('#orders-table').on('click', '.view-btn', function () {
+    viewOrder($(this).data('id'));
   });
 
   $('#orders-table').on('click', '.edit-status-btn', function () {

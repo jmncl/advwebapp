@@ -43,6 +43,28 @@ const requireAdmin = () => {
   return true;
 };
 
+const requireCustomer = () => {
+  const token = requireLogin();
+  if (!token) return null;
+
+  const user = getUser();
+  if (!user || user.role !== 'customer') {
+    Swal.fire({
+      icon: 'info',
+      text: user?.role === 'admin'
+        ? 'Admins manage all orders in the admin panel.'
+        : 'Customer login required to view orders.'
+    }).then(() => {
+      window.location.href = user?.role === 'admin'
+        ? pageUrl('admin/orders.html')
+        : pageUrl('login.html');
+    });
+    return null;
+  }
+
+  return token;
+};
+
 const updateNavbar = () => {
   const user = getUser();
   const $auth = $('#nav-auth');
@@ -50,13 +72,29 @@ const updateNavbar = () => {
 
   if (user) {
     $auth.html(`
+      ${user.role === 'customer' ? `<a href="${pageUrl('orders.html')}"><i class="fas fa-shopping-bag"></i> My Orders</a>` : ''}
       ${user.role === 'admin' ? `<a href="${pageUrl('admin/dashboard.html')}"><i class="fas fa-cog"></i> Admin</a>` : ''}
       <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
     `);
     $('#logout-btn').on('click', (e) => {
       e.preventDefault();
-      sessionStorage.clear();
-      window.location.href = pageUrl('index.html');
+      const token = getToken();
+      const finishLogout = () => {
+        sessionStorage.clear();
+        window.location.href = pageUrl('index.html');
+      };
+
+      if (!token) {
+        finishLogout();
+        return;
+      }
+
+      $.ajax({
+        url: `${API_URL}/api/v1/logout`,
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        complete: finishLogout
+      });
     });
     loadCartCount();
   } else {

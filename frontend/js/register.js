@@ -1,33 +1,57 @@
 $(document).ready(() => {
-  $('#register-form').on('submit', (e) => {
-    e.preventDefault();
-    let valid = true;
-
-    const name = $('#name').val().trim();
-    const email = $('#email').val().trim();
-    const password = $('#password').val();
-    const confirm = $('#confirm-password').val();
-
-    if (!name) { $('#name-error').show(); valid = false; } else { $('#name-error').hide(); }
-    if (!email) { $('#email-error').show(); valid = false; } else { $('#email-error').hide(); }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { $('#email-format-error').show(); valid = false; } else { $('#email-format-error').hide(); }
-    if (!password) { $('#password-error').show(); valid = false; } else { $('#password-error').hide(); }
-    if (password !== confirm) { $('#confirm-error').show(); valid = false; } else { $('#confirm-error').hide(); }
-
-    if (!valid) return;
-
-    $.ajax({
-      url: `${API_URL}/api/v1/register`,
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({ name, email, password }),
-      success: () => {
-        Swal.fire({ icon: 'success', title: 'Account created!', text: 'You can now log in.' })
-          .then(() => { window.location.href = pageUrl('login.html'); });
+  $('#register-form').validate({
+    rules: {
+      name: { required: true, minlength: 2, maxlength: 80 },
+      email: { required: true, email: true },
+      password: { required: true, minlength: 6 },
+      confirm_password: { required: true, equalTo: '#password' }
+    },
+    messages: {
+      name: {
+        required: 'Name is required',
+        minlength: 'Name must be at least 2 characters'
       },
-      error: (xhr) => {
-        Swal.fire({ icon: 'error', text: xhr.responseJSON?.error || 'Registration failed' });
+      email: {
+        required: 'Email is required',
+        email: 'Invalid email format'
+      },
+      password: {
+        required: 'Password is required',
+        minlength: 'Password must be at least 6 characters'
+      },
+      confirm_password: {
+        required: 'Please confirm your password',
+        equalTo: 'Passwords do not match'
       }
-    });
+    },
+    errorElement: 'div',
+    errorClass: 'text-danger small mt-1',
+    submitHandler: () => submitRegister()
   });
 });
+
+const submitRegister = () => {
+  const name = $('#name').val().trim();
+  const email = $('#email').val().trim();
+  const password = $('#password').val();
+
+  $.ajax({
+    url: `${API_URL}/api/v1/register`,
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ name, email, password }),
+    success: (data) => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Check your email!',
+        html: `${data.message}<br><br>We sent a verification link to <strong>${email}</strong>.`,
+        confirmButtonColor: '#ce1141'
+      }).then(() => {
+        window.location.href = pageUrl('login.html');
+      });
+    },
+    error: (xhr) => {
+      Swal.fire({ icon: 'error', text: xhr.responseJSON?.error || 'Registration failed' });
+    }
+  });
+};

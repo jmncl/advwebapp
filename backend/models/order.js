@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     shipping_address: DataTypes.TEXT,
     payment_method: DataTypes.STRING,
+    admin_note: DataTypes.TEXT,
     deleted_at: { type: DataTypes.DATE, allowNull: true }
   }, { tableName: 'orders', timestamps: true });
 };

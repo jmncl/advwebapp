@@ -9,6 +9,7 @@ const routeMap = {
   '/': 'index.html',
   '/login': 'login.html',
   '/register': 'register.html',
+  '/verify-email': 'verify-email.html',
   '/cart': 'cart.html',
   '/checkout': 'checkout.html',
   '/orders': 'orders.html',

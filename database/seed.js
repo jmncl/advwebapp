@@ -14,7 +14,8 @@ const users = [
     email: 'admin@jordanstore.com',
     password: 'admin123',
     role: 'admin',
-    is_active: 1
+    is_active: 1,
+    email_verified: 1
   },
   {
     name: 'John Customer',
@@ -22,6 +23,7 @@ const users = [
     password: 'customer123',
     role: 'customer',
     is_active: 1,
+    email_verified: 1,
     customer: {
       fname: 'John',
       lname: 'Customer',
@@ -157,6 +159,7 @@ async function resetDatabase() {
   const dbName = process.env.DB_NAME;
   const sequelize = new Sequelize('', process.env.DB_USER, process.env.DB_PASSWORD, {
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
     logging: false
   });

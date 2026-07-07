@@ -6,6 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     password: { type: DataTypes.STRING, allowNull: false },
     role: { type: DataTypes.ENUM('admin', 'customer'), defaultValue: 'customer' },
     token: { type: DataTypes.STRING(500), allowNull: true },
+    email_verified: { type: DataTypes.TINYINT, defaultValue: 0 },
+    verification_token: { type: DataTypes.STRING(128), allowNull: true },
     is_active: { type: DataTypes.TINYINT, defaultValue: 1 },
     deleted_at: { type: DataTypes.DATE, allowNull: true }
   }, { tableName: 'users', timestamps: true });
