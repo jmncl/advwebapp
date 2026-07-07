@@ -1,3 +1,5 @@
+const { computeItemSubtotal, getItemName } = require('./orderTotals');
+
 const formatPrice = (amount) => `₱${parseFloat(amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
 
 const statusColor = (status) => {
@@ -17,9 +19,9 @@ const buildOrderItemsRows = (order) => {
   }
 
   return order.OrderItems.map((item) => {
-    const name = item.Product ? item.Product.name : 'Product';
+    const name = getItemName(item);
     const size = item.size ? ` · Size ${item.size}` : '';
-    const subtotal = item.computed_subtotal ?? (parseFloat(item.Product?.unit_price || 0) * item.quantity);
+    const subtotal = item.computed_subtotal ?? computeItemSubtotal(item);
     return `
       <tr>
         <td style="padding:14px 16px;border-bottom:1px solid #2a2a2a;color:#f0f0f0;font-size:14px;">

@@ -49,8 +49,8 @@ exports.getDashboardStats = async (req, res) => {
     }));
 
     const categorySales = await OrderItem.findAll({
-      include: [{ model: Product, attributes: ['category', 'unit_price'] }],
-      attributes: ['quantity']
+      include: [{ model: Product, attributes: ['category'] }],
+      attributes: ['quantity', 'unit_price']
     });
 
     return res.status(200).json({

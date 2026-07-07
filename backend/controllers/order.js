@@ -76,6 +76,8 @@ exports.createOrder = async (req, res) => {
         await OrderItem.create({
           order_id: order.id,
           product_id: item.product_id,
+          product_name: product.name,
+          unit_price: product.unit_price,
           quantity: item.quantity,
           size: item.size || product.size
         }, { transaction });

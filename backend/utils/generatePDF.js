@@ -1,5 +1,5 @@
 const PDFDocument = require('pdfkit');
-const { computeOrderTotal, computeItemSubtotal } = require('./orderTotals');
+const { computeOrderTotal, computeItemSubtotal, getItemName } = require('./orderTotals');
 
 const RED = '#ce1141';
 const DARK = '#111111';
@@ -53,7 +53,7 @@ const generateOrderReceipt = (order) => {
 
     if (order.OrderItems) {
       order.OrderItems.forEach((item) => {
-        const name = item.Product ? item.Product.name : 'Product';
+        const name = getItemName(item);
         const size = item.size ? ` · Size ${item.size}` : '';
         const subtotal = item.computed_subtotal ?? computeItemSubtotal(item);
         doc.fillColor(DARK).fontSize(11).font('Helvetica-Bold').text(`${name}${size}`);

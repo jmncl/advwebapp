@@ -56,8 +56,8 @@ const appendOrders = () => {
 
     let itemsHtml = '';
     (order.OrderItems || []).forEach((item) => {
-      const subtotal = item.computed_subtotal ?? (parseFloat(item.Product?.unit_price || 0) * item.quantity);
-      itemsHtml += `<li>${item.Product?.name || 'Product'} x${item.quantity} - ${formatPrice(subtotal)}</li>`;
+      const subtotal = item.computed_subtotal ?? (parseFloat(item.unit_price || item.Product?.unit_price || 0) * item.quantity);
+      itemsHtml += `<li>${item.product_name || item.Product?.name || 'Product'} x${item.quantity} - ${formatPrice(subtotal)}</li>`;
     });
 
     $('#orders-list').append(`
@@ -83,7 +83,7 @@ const viewMyOrder = (id) => {
       const order = data.order;
       let itemsHtml = '';
       (order.OrderItems || []).forEach((item) => {
-        itemsHtml += `<li>${item.Product?.name || 'Product'} x${item.quantity} - ${formatPrice(item.computed_subtotal)}</li>`;
+        itemsHtml += `<li>${item.product_name || item.Product?.name || 'Product'} x${item.quantity} - ${formatPrice(item.computed_subtotal)}</li>`;
       });
 
       Swal.fire({

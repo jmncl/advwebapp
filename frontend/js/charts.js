@@ -37,7 +37,7 @@ const buildCharts = (data) => {
   const catMap = {};
   (data.categorySales || []).forEach((item) => {
     const cat = item.Product?.category || 'Other';
-    const lineTotal = parseFloat(item.Product?.unit_price || 0) * item.quantity;
+    const lineTotal = parseFloat(item.unit_price || item.Product?.unit_price || 0) * item.quantity;
     catMap[cat] = (catMap[cat] || 0) + lineTotal;
   });
 

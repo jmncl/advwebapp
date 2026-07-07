@@ -43,7 +43,7 @@ const viewOrder = (id) => {
       const order = data.order;
       let itemsHtml = '';
       (order.OrderItems || []).forEach((item) => {
-        itemsHtml += `<li>${item.Product?.name || 'Product'} x${item.quantity} - ${formatPrice(item.computed_subtotal)}</li>`;
+        itemsHtml += `<li>${item.product_name || item.Product?.name || 'Product'} x${item.quantity} - ${formatPrice(item.computed_subtotal)}</li>`;
       });
 
       Swal.fire({

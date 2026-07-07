@@ -1,12 +1,18 @@
-const PER_PAGE = 8;
+const BATCH = 10;
 let allProducts = [];
-let currentPage = 1;
+let loadedCount = 0;
 let activeCategory = '';
 
 $(document).ready(() => {
   updateNavbar();
   initAutocomplete();
   loadProducts();
+
+  $(window).on('scroll', () => {
+    if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+      appendProducts();
+    }
+  });
 
   $(document).on('click', '.view-details-link, .view-details-btn', function (e) {
     e.preventDefault();
@@ -48,13 +54,12 @@ $(document).ready(() => {
     $('.filter-btn').removeClass('active');
     $(this).addClass('active');
     activeCategory = $(this).data('category') || '';
-    currentPage = 1;
     loadProducts();
   });
 
-  $('#search-btn').on('click', () => { currentPage = 1; loadProducts(); });
-  $('#sort-select').on('change', () => { currentPage = 1; loadProducts(); });
-  $('#min-price, #max-price').on('change', () => { currentPage = 1; loadProducts(); });
+  $('#search-btn').on('click', () => loadProducts());
+  $('#sort-select').on('change', () => loadProducts());
+  $('#min-price, #max-price').on('change', () => loadProducts());
 });
 
 const initAutocomplete = () => {
@@ -89,77 +94,75 @@ const loadProducts = () => {
   if (maxPrice) params.max_price = maxPrice;
 
   $('#product-grid').html('<p class="loading-msg">Loading products...</p>');
+  $('#scroll-status').empty();
 
   $.get(`${API_URL}/api/v1/products`, params, (data) => {
     allProducts = data.rows || [];
-    renderPage();
+    loadedCount = 0;
+    $('#product-grid').empty();
+
+    if (allProducts.length === 0) {
+      $('#product-grid').html('<p class="loading-msg">No products found.</p>');
+      return;
+    }
+
+    appendProducts();
   }).fail(() => {
     $('#product-grid').html('<p class="loading-msg">Could not load products. Is the backend running?</p>');
   });
 };
 
-const renderPage = () => {
-  const start = (currentPage - 1) * PER_PAGE;
-  const pageProducts = allProducts.slice(start, start + PER_PAGE);
-  const $grid = $('#product-grid');
-  $grid.empty();
+const buildProductCard = (p) => {
+  const imgHtml = productImage(p)
+    ? `<img src="${productImage(p)}" alt="${p.name}">`
+    : `<div class="placeholder-img"><i class="fas fa-shoe-prints"></i></div>`;
 
-  if (pageProducts.length === 0) {
-    $grid.html('<p class="loading-msg">No products found.</p>');
-    $('#pagination').empty();
-    return;
-  }
+  const stockBadge = p.stock_quantity > 10
+    ? '<span class="badge badge-success">In Stock</span>'
+    : p.stock_quantity > 0
+      ? '<span class="badge badge-warning">Low Stock</span>'
+      : '<span class="badge badge-danger">Out of Stock</span>';
 
   const user = getUser();
+  const addCartBtn = user && p.stock_quantity > 0
+    ? `<button class="btn btn-primary btn-sm add-cart-btn" data-id="${p.id}"><i class="fas fa-cart-plus"></i> Add to Cart</button>`
+    : '';
 
-  pageProducts.forEach((p) => {
-    const imgHtml = productImage(p)
-      ? `<img src="${productImage(p)}" alt="${p.name}">`
-      : `<div class="placeholder-img"><i class="fas fa-shoe-prints"></i></div>`;
-
-    const stockBadge = p.stock_quantity > 10
-      ? '<span class="badge badge-success">In Stock</span>'
-      : p.stock_quantity > 0
-        ? '<span class="badge badge-warning">Low Stock</span>'
-        : '<span class="badge badge-danger">Out of Stock</span>';
-
-    const addCartBtn = user && p.stock_quantity > 0
-      ? `<button class="btn btn-primary btn-sm add-cart-btn" data-id="${p.id}"><i class="fas fa-cart-plus"></i> Add to Cart</button>`
-      : '';
-
-    $grid.append(`
-      <div class="product-card" data-id="${p.id}">
-        ${imgHtml}
-        <div class="card-body">
-          <div class="product-name view-details-link" data-id="${p.id}" style="cursor:pointer;">${p.name}</div>
-          <div class="product-category">${p.category} | Size: ${p.size || 'N/A'} | ${p.item_code}</div>
-          <div class="product-price">${formatPrice(p.unit_price)}</div>
-          ${stockBadge}
-          <div class="product-actions">
-            <a href="${pageUrl('product-detail.html')}?id=${p.id}#${p.id}" class="btn btn-outline btn-sm view-details-link" data-id="${p.id}">View Details</a>
-            ${addCartBtn}
-          </div>
+  return `
+    <div class="product-card" data-id="${p.id}">
+      ${imgHtml}
+      <div class="card-body">
+        <div class="product-name view-details-link" data-id="${p.id}" style="cursor:pointer;">${p.name}</div>
+        <div class="product-category">${p.category} | Size: ${p.size || 'N/A'} | ${p.item_code}</div>
+        <div class="product-price">${formatPrice(p.unit_price)}</div>
+        ${stockBadge}
+        <div class="product-actions">
+          <a href="${pageUrl('product-detail.html')}?id=${p.id}#${p.id}" class="btn btn-outline btn-sm view-details-link" data-id="${p.id}">View Details</a>
+          ${addCartBtn}
         </div>
       </div>
-    `);
-  });
-
-  renderPagination();
+    </div>
+  `;
 };
 
-const renderPagination = () => {
-  const totalPages = Math.ceil(allProducts.length / PER_PAGE);
-  const $pag = $('#pagination');
-  $pag.empty();
-  if (totalPages <= 1) return;
+const appendProducts = () => {
+  if (loadedCount >= allProducts.length) return;
 
-  for (let i = 1; i <= totalPages; i++) {
-    $pag.append(`<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`);
-  }
+  const batch = allProducts.slice(loadedCount, loadedCount + BATCH);
+  loadedCount += batch.length;
 
-  $('.page-btn').on('click', function () {
-    currentPage = parseInt($(this).data('page'));
-    renderPage();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  batch.forEach((p) => {
+    $('#product-grid').append(buildProductCard(p));
   });
+
+  updateScrollStatus();
+};
+
+const updateScrollStatus = () => {
+  const $status = $('#scroll-status');
+  if (loadedCount >= allProducts.length) {
+    $status.html(`<p class="loading-msg">Showing all ${allProducts.length} products</p>`);
+  } else {
+    $status.html(`<p class="loading-msg">Showing ${loadedCount} of ${allProducts.length} — scroll for more</p>`);
+  }
 };

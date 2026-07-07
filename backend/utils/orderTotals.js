@@ -1,7 +1,8 @@
-const computeItemSubtotal = (item) => {
-  const price = parseFloat(item.Product?.unit_price || 0);
-  return price * (item.quantity || 0);
-};
+const getItemPrice = (item) => parseFloat(item.unit_price ?? item.Product?.unit_price ?? 0);
+
+const getItemName = (item) => item.product_name || item.Product?.name || 'Product';
+
+const computeItemSubtotal = (item) => getItemPrice(item) * (item.quantity || 0);
 
 const computeOrderTotal = (order) => {
   const items = order.OrderItems || [];
@@ -23,6 +24,8 @@ const enrichOrder = (order) => {
 const enrichOrders = (orders) => orders.map(enrichOrder);
 
 module.exports = {
+  getItemPrice,
+  getItemName,
   computeItemSubtotal,
   computeOrderTotal,
   enrichOrder,

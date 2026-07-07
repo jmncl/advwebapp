@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     item_code: { type: DataTypes.STRING, allowNull: false, unique: true },
     name: { type: DataTypes.STRING, allowNull: false },
-    category: { type: DataTypes.ENUM('Clothing', 'Footwear'), allowNull: false },
+    category: { type: DataTypes.ENUM('Shoes', 'Apparel', 'Accessories'), allowNull: false },
     size: DataTypes.STRING,
     unit_price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     description: DataTypes.TEXT,
