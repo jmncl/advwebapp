@@ -17,8 +17,7 @@ const routeMap = {
   '/admin/dashboard': 'admin/dashboard.html',
   '/admin/products': 'admin/products.html',
   '/admin/users': 'admin/users.html',
-  '/admin/orders': 'admin/orders.html',
-  '/admin/reports': 'admin/reports.html'
+  '/admin/orders': 'admin/orders.html'
 };
 
 const mimeTypes = {
